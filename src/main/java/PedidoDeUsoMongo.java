@@ -1,4 +1,3 @@
-import static com.mongodb.client.model.Filters.eq;
 import org.bson.Document;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -10,11 +9,17 @@ public class PedidoDeUsoMongo extends Pedido{
     private String db;
     private String collection;
     private String tipoPedido;
+    private Document filtro;
+    private Document novosDados;
+    private Document doc;
 
-    public PedidoDeUsoMongo(String database, String collection, String tipoPedido) {
+    public PedidoDeUsoMongo(String database, String collection, String tipoPedido, Document filtro, Document novosDados, Document documento) {
         this.db = database;
         this.collection = collection;
         this.tipoPedido = tipoPedido;
+        this.filtro = filtro;
+        this.novosDados = novosDados;
+        this.doc = documento;
     }
     public MongoCollection<Document> getDbCollecion() throws Exception {
         try {
@@ -27,6 +32,15 @@ public class PedidoDeUsoMongo extends Pedido{
     }
 
     public String getTipoPedido() {
-        return tipoPedido;
+        return this.tipoPedido;
+    }
+    public Document getFiltro() {
+        return this.filtro;
+    }
+    public Document getNovosDados() {
+        return this.novosDados;
+    }
+    public Document getDocumento() {
+        return this.doc;
     }
 }
