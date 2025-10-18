@@ -39,7 +39,7 @@ public class Parceiro {
         }
     }
 
-    public Pedido RecebeUmPedido() throws Exception {
+    public Pedido EnviarUmPedido() throws Exception {
         try {
             if (this.proximoPedido == null) this.proximoPedido = (Pedido) this.receptor.readObject();
             Pedido retorno = this.proximoPedido;

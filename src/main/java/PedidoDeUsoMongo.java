@@ -16,7 +16,7 @@ public class PedidoDeUsoMongo extends Pedido{
     public PedidoDeUsoMongo(String database, String collection, String tipoPedido, Document filtro, Document novosDados, Document documento) {
         this.db = database;
         this.collection = collection;
-        this.tipoPedido = tipoPedido;
+        this.tipoPedido = tipoPedido.toLowerCase();
         this.filtro = filtro;
         this.novosDados = novosDados;
         this.doc = documento;
