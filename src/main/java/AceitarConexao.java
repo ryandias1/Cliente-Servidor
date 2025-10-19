@@ -17,6 +17,18 @@ public class AceitarConexao extends Thread {
     }
 
     public void run () {
-        //TODO: Implementar lógica (1)
+        for(;;) {
+            Socket conexao=null;
+            try {
+                conexao = this.pedido.accept();
+            } catch (Exception erro) {
+                continue;
+            }
+            SupervisaoConexao supervisaoConexao = null;
+            try {
+                supervisaoConexao = new SupervisaoConexao (conexao, usuarios);
+            } catch (Exception erro) {} // sei que passei parametros corretos para o construtor
+            supervisaoConexao.start();
+        }
     }
 }
