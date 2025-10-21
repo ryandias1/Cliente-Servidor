@@ -2,6 +2,9 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UsarMongo {
     private MongoCollection<Document> collection;
 
@@ -17,9 +20,14 @@ public class UsarMongo {
         }
     }
 
-    public FindIterable<Document> obterDados(Document filtro) throws Exception{
+    public List<Document> obterDados(Document filtro) throws Exception{
         try {
-            return this.collection.find(filtro);
+            FindIterable<Document> list = this.collection.find(filtro);
+            List<Document> lista = new ArrayList<Document>();
+            for (Document doc : list) {
+                lista.add(doc);
+            }
+            return lista;
         } catch (Exception erro) {
             throw new Exception("Não foi possivel obter os dados do banco");
         }

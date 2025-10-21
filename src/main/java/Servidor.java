@@ -41,8 +41,8 @@ public class Servidor {
 
                     for (Parceiro usuario : usuarios) {
                         try {
-                            usuario.RecebeUmPedido(pedidoDeDesligamento);
-                            usuario.FecharConexao();
+                            usuario.recebeUmPedido(pedidoDeDesligamento);
+                            usuario.fecharConexao();
                         } catch (Exception erro) {}
                     }
                 }

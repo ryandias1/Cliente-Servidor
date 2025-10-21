@@ -21,6 +21,7 @@ public class SupervisaoConexao extends Thread {
         ObjectOutputStream transmissor;
         try {
             transmissor = new ObjectOutputStream(this.conexao.getOutputStream());
+            transmissor.flush();
         } catch (Exception erro) {
             return;
         }
@@ -44,7 +45,7 @@ public class SupervisaoConexao extends Thread {
             }
 
             for(;;) {
-                Pedido pedido = this.usuario.EnviarUmPedido();
+                Pedido pedido = this.usuario.enviarUmPedido();
                 if (pedido==null) return;
                 else if (pedido instanceof PedidoDeUsoMongo) {
                     PedidoDeUsoMongo pedidoDeUsoMongo = (PedidoDeUsoMongo) pedido;
@@ -58,15 +59,17 @@ public class SupervisaoConexao extends Thread {
                             break;
                         case "delete":
                             dbAcess.excluirNoBanco(pedidoDeUsoMongo.getFiltro());
+                            break;
                         case "find":
-                            FindIterable<Document> dadosObtidos = dbAcess.obterDados(pedidoDeUsoMongo.getFiltro());
-                            this.usuario.RecebeUmPedido(new RetornarDados(dadosObtidos));
+                            List<Document> dadosObtidos = dbAcess.obterDados(pedidoDeUsoMongo.getFiltro());
+                            this.usuario.recebeUmPedido(new RetornarDados(dadosObtidos));
+                            break;
                     }
                 } else if (pedido instanceof PedidoDeSaida) {
                     synchronized (this.usuarios) {
                         this.usuarios.remove (this.usuario);
                     }
-                    this.usuario.FecharConexao();
+                    this.usuario.fecharConexao();
                 }
             }
         } catch (Exception erro) {

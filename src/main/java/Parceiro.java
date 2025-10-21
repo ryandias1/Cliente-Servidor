@@ -30,45 +30,45 @@ public class Parceiro {
         this.transmissor = transmissor;
     }
 
-    public void RecebeUmPedido(Pedido p) throws Exception {
+    public void recebeUmPedido(Pedido p) throws Exception {
         try {
             this.transmissor.writeObject(p);
             this.transmissor.flush();
         } catch (IOException erro) {
-            throw new Exception("Erro de transmissão");
+            throw new Exception("Erro de transmissão"+ erro.getClass().getSimpleName() + " - " + erro.getMessage());
         }
     }
 
-    public Pedido EnviarUmPedido() throws Exception {
+    public Pedido enviarUmPedido() throws Exception {
         try {
             if (this.proximoPedido == null) this.proximoPedido = (Pedido) this.receptor.readObject();
             Pedido retorno = this.proximoPedido;
             this.proximoPedido = null;
             return retorno;
         } catch (Exception erro) {
-            throw new Exception("Erro de recebimento");
+            throw new Exception("Erro de recebimento"+ erro.getClass().getSimpleName() + " - " + erro.getMessage());
         }
     }
 
     //Esse metodo serve para ver que pedido esta la para ser recebido, sem consumir, ou seja, "espiar"
-    public Pedido EspionarPedido() throws Exception {
+    public Pedido espionarPedido() throws Exception {
         try {
             this.mutex.acquireUninterruptibly();
             if (this.proximoPedido == null) this.proximoPedido = (Pedido) this.receptor.readObject();
             this.mutex.release();
             return this.proximoPedido;
         } catch (Exception erro) {
-            throw new Exception("Erro de recebimento");
+            throw new Exception("Erro de recebimento"+ erro.getClass().getSimpleName() + " - " + erro.getMessage());
         }
     }
 
-    public void FecharConexao() throws Exception {
+    public void fecharConexao() throws Exception {
         try {
             this.conexao.close();
             this.receptor.close();
             this.transmissor.close();
         } catch (Exception erro) {
-            throw new Exception("Erro de desconexao");
+            throw new Exception("Erro de desconexao"+ erro.getClass().getSimpleName() + " - " + erro.getMessage());
         }
     }
 }

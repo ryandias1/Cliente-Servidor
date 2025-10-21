@@ -1,14 +1,14 @@
-import com.mongodb.client.FindIterable;
 import org.bson.Document;
+import java.util.List;
 
 public class RetornarDados extends Pedido{
-    private FindIterable<Document> Dados;
+    private List<Document> Dados;
 
-    public RetornarDados(FindIterable<Document> Dados) {
-        this.Dados = Dados;
+    public RetornarDados(List<Document> lista) {
+        this.Dados = lista;
     }
 
-    public FindIterable<Document> getDados() {
+    public List<Document> getDados() {
         return Dados;
     }
 }
