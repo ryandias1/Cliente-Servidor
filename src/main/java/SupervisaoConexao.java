@@ -6,15 +6,18 @@ import java.net.*;
 import java.util.*;
 
 public class SupervisaoConexao extends Thread {
+    private Map<String, Parceiro> usuariosIdentificados;
     private Parceiro            usuario;
     private Socket              conexao;
     private ArrayList<Parceiro> usuarios;
 
-    public SupervisaoConexao (Socket conexao, ArrayList<Parceiro> usuarios) throws Exception {
+    public SupervisaoConexao (Socket conexao, ArrayList<Parceiro> usuarios, Map<String, Parceiro> usuariosIdentificados) throws Exception {
         if (conexao==null) throw new Exception ("Conexao ausente");
         if (usuarios==null) throw new Exception ("Usuarios ausentes");
+        if (usuariosIdentificados==null) throw new Exception ("Usuarios identificados ausentes");
         this.conexao  = conexao;
         this.usuarios = usuarios;
+        this.usuariosIdentificados = usuariosIdentificados;
     }
 
     public void run () {
@@ -49,19 +52,19 @@ public class SupervisaoConexao extends Thread {
                 if (pedido==null) return;
                 else if (pedido instanceof PedidoDeUsoMongo) {
                     PedidoDeUsoMongo pedidoDeUsoMongo = (PedidoDeUsoMongo) pedido;
-                    UsarMongo dbAcess = new UsarMongo(pedidoDeUsoMongo.getDbCollecion());
+                    UsarMongo mongo = new UsarMongo(pedidoDeUsoMongo.getDbCollecion());
                     switch (pedidoDeUsoMongo.getTipoPedido()) {
                         case "insert":
-                            dbAcess.inserirNoBanco(pedidoDeUsoMongo.getDocumento());
+                            mongo.inserirNoBanco(pedidoDeUsoMongo.getDocumento());
                             break;
                         case "update":
-                            dbAcess.alterarNoBanco(pedidoDeUsoMongo.getFiltro(), pedidoDeUsoMongo.getNovosDados());
+                            mongo.alterarNoBanco(pedidoDeUsoMongo.getFiltro(), pedidoDeUsoMongo.getNovosDados());
                             break;
                         case "delete":
-                            dbAcess.excluirNoBanco(pedidoDeUsoMongo.getFiltro());
+                            mongo.excluirNoBanco(pedidoDeUsoMongo.getFiltro());
                             break;
                         case "find":
-                            List<Document> dadosObtidos = dbAcess.obterDados(pedidoDeUsoMongo.getFiltro());
+                            List<Document> dadosObtidos = mongo.obterDados(pedidoDeUsoMongo.getFiltro());
                             this.usuario.recebeUmPedido(new RetornarDados(dadosObtidos));
                             break;
                     }
@@ -77,7 +80,6 @@ public class SupervisaoConexao extends Thread {
                 transmissor.close ();
                 receptor   .close ();
             } catch (Exception falha) {} // so tentando fechar antes de acabar a thread
-            return;
         }
     }
 }
