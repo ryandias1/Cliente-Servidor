@@ -40,7 +40,21 @@ public class SupervisaoConexao extends Thread {
 
         try {
             this.usuario = new Parceiro (this.conexao, receptor, transmissor);
+            Pedido pedido = null;
+            do
+            {
+               pedido = (Pedido) this.usuario.espionarPedido ();
+            }
+            while (!(pedido instanceof PedidoIdentificacao));
         } catch (Exception erro) {} // sei que passei os parametros corretos
+
+        PedidoIdentificacao identificacao;
+        try {
+            identificacao = (PedidoIdentificacao) this.usuario.enviarUmPedido();
+
+        } catch (Exception erro) {
+            return;
+        }
 
         try {
             synchronized (this.usuarios) {
@@ -67,6 +81,19 @@ public class SupervisaoConexao extends Thread {
                             List<Document> dadosObtidos = mongo.obterDados(pedidoDeUsoMongo.getFiltro());
                             this.usuario.recebeUmPedido(new RetornarDados(dadosObtidos));
                             break;
+                    }
+                } else if (pedido instanceof PedidoMensagem) {
+                    PedidoMensagem pedidoMensagem = (PedidoMensagem) pedido;
+                    Parceiro destinatario = this.usuariosIdentificados.get(pedidoMensagem.getUidDestinatario());
+                    if (destinatario==null) {
+                        Document msgPendente = new Document()
+                                .append("uidRemetente", pedidoMensagem.getUidRemetente())
+                                .append("uidDestinatario", pedidoMensagem.getUidDestinatario())
+                                .append("Conteudo", pedidoMensagem.getConteudo());
+                        UsarMongo mongo = new UsarMongo("IntelimedDB", "MensagensPendentes");
+                        mongo.inserirNoBanco(msgPendente);
+                    } else {
+                        destinatario.recebeUmPedido(pedidoMensagem);
                     }
                 } else if (pedido instanceof PedidoDeSaida) {
                     synchronized (this.usuarios) {

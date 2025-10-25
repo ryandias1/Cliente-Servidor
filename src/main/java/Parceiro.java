@@ -15,6 +15,7 @@ import java.util.concurrent.Semaphore;
 */
 
 public class Parceiro {
+    private String uid;
     private Socket conexao;
     private ObjectInputStream receptor; //Serve para receber dados do tipo Serializable
     private ObjectOutputStream transmissor; //Serve para enviar dados do tipo Serializable
@@ -28,6 +29,14 @@ public class Parceiro {
         this.conexao = conexao;
         this.receptor = receptor;
         this.transmissor = transmissor;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
+    public String getUid() {
+        return uid;
     }
 
     public void recebeUmPedido(Pedido p) throws Exception {
