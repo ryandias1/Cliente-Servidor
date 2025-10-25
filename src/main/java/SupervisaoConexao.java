@@ -60,6 +60,34 @@ public class SupervisaoConexao extends Thread {
             synchronized (this.usuarios) {
                 this.usuarios.add (this.usuario);
             }
+            synchronized (this.usuariosIdentificados) {
+                this.usuariosIdentificados.put(identificacao.getUid(), this.usuario);
+            }
+            this.usuario.setUid(identificacao.getUid());
+            try {
+                UsarMongo mongoMsg = new UsarMongo("IntelimedDB", "MensagensPendentes");
+
+                // Buscar mensagens pendentes do usuário conectado
+                Document filtro = new Document("uidDestinatario", this.usuario.getUid());
+                List<Document> pendentes = mongoMsg.obterDados(filtro);
+
+                // Enviar todas as mensagens
+                for (Document msg : pendentes) {
+                    String idRemetente = msg.getString("uidRemetente");
+                    String conteudo = msg.getString("Conteudo");
+
+                    PedidoMensagem pedidoMensagem = new PedidoMensagem(idRemetente, conteudo, this.usuario.getUid());
+                    this.usuario.recebeUmPedido(pedidoMensagem);
+                }
+
+                if (!pendentes.isEmpty()) {
+                    mongoMsg.excluirNoBanco(filtro);
+                }
+
+
+            } catch (Exception erro) {
+                throw new Exception("Erro ao enviar mensagens pendentes: " + erro);
+            }
 
             for(;;) {
                 Pedido pedido = this.usuario.enviarUmPedido();
