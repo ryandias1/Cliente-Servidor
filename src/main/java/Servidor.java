@@ -12,9 +12,10 @@ public class Servidor {
             porta = args[0];
         }
         ArrayList<Parceiro> usuarios = new ArrayList<Parceiro>();
+        Map<String, Parceiro> usuariosIdentificados = new HashMap<>();
         AceitarConexao aceitarConexao=null;
         try {
-            aceitarConexao = new AceitarConexao (porta, usuarios);
+            aceitarConexao = new AceitarConexao (porta, usuarios, usuariosIdentificados);
             aceitarConexao.start();
         } catch (Exception erro) {
             throw new Exception("Escolha uma porta apropriada e liberada para uso!\n");

@@ -1,7 +1,9 @@
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +12,16 @@ public class UsarMongo {
 
     public UsarMongo(MongoCollection<Document> col) {
         this.collection = col;
+    }
+
+    public UsarMongo(String db, String col) throws Exception {
+        try {
+            MongoClient cliente = MongoClients.create(UriMongo.getUri());
+            MongoDatabase banco = cliente.getDatabase(db);
+            this.collection = banco.getCollection(col);
+        } catch (Exception e) {
+            System.err.println("Erro ao conectar ao MongoDB: " + e.getMessage());
+        }
     }
 
     public void inserirNoBanco (Document doc) throws Exception{
@@ -43,7 +55,7 @@ public class UsarMongo {
 
     public void excluirNoBanco (Document filtro) throws Exception{
         try {
-            this.collection.deleteOne(filtro);
+            this.collection.deleteMany(filtro);
         } catch (Exception erro) {
             throw new Exception("Não foi possivel excluir dados do banco");
         }
