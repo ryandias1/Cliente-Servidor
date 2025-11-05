@@ -1,6 +1,4 @@
-import com.mongodb.client.FindIterable;
 import org.bson.Document;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -46,7 +44,10 @@ public class SupervisaoConexao extends Thread {
                pedido = (Pedido) this.usuario.espionarPedido ();
             }
             while (!(pedido instanceof PedidoIdentificacao));
-        } catch (Exception erro) {} // sei que passei os parametros corretos
+        } catch (Exception erro) {
+            erro.printStackTrace();
+            return;
+        }
 
         PedidoIdentificacao identificacao;
         try {
@@ -75,8 +76,9 @@ public class SupervisaoConexao extends Thread {
                 for (Document msg : pendentes) {
                     String idRemetente = msg.getString("uidRemetente");
                     String conteudo = msg.getString("Conteudo");
+                    String chaveBase64 = msg.getString("chave");
 
-                    PedidoMensagem pedidoMensagem = new PedidoMensagem(idRemetente, conteudo, this.usuario.getUid());
+                    PedidoMensagem pedidoMensagem = new PedidoMensagem(idRemetente, conteudo, this.usuario.getUid(), chaveBase64);
                     this.usuario.recebeUmPedido(pedidoMensagem);
                 }
 
@@ -117,7 +119,8 @@ public class SupervisaoConexao extends Thread {
                         Document msgPendente = new Document()
                                 .append("uidRemetente", pedidoMensagem.getUidRemetente())
                                 .append("uidDestinatario", pedidoMensagem.getUidDestinatario())
-                                .append("Conteudo", pedidoMensagem.getConteudo());
+                                .append("Conteudo", pedidoMensagem.getConteudoCriptografado())
+                                .append("chave", pedidoMensagem.getChaveBase64());
                         UsarMongo mongo = new UsarMongo("IntelimedDB", "MensagensPendentes");
                         mongo.inserirNoBanco(msgPendente);
                     } else {
