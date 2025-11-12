@@ -96,20 +96,29 @@ public class SupervisaoConexao extends Thread {
                 if (pedido==null) return;
                 else if (pedido instanceof PedidoDeUsoMongo) {
                     PedidoDeUsoMongo pedidoDeUsoMongo = (PedidoDeUsoMongo) pedido;
-                    UsarMongo mongo = new UsarMongo(pedidoDeUsoMongo.getDbCollecion());
+                    UsarMongo mongo = new UsarMongo(pedidoDeUsoMongo.getDb(), pedidoDeUsoMongo.getCollection());
                     switch (pedidoDeUsoMongo.getTipoPedido()) {
                         case "insert":
-                            mongo.inserirNoBanco(pedidoDeUsoMongo.getDocumento());
+                            mongo.inserirNoBanco(new Document(pedidoDeUsoMongo.getDocumento()));
                             break;
                         case "update":
-                            mongo.alterarNoBanco(pedidoDeUsoMongo.getFiltro(), pedidoDeUsoMongo.getNovosDados());
+                            mongo.alterarNoBanco(new Document(pedidoDeUsoMongo.getFiltro()), new Document(pedidoDeUsoMongo.getNovosDados()));
                             break;
                         case "delete":
-                            mongo.excluirNoBanco(pedidoDeUsoMongo.getFiltro());
+                            mongo.excluirNoBanco(new Document(pedidoDeUsoMongo.getFiltro()));
                             break;
                         case "find":
-                            List<Document> dadosObtidos = mongo.obterDados(pedidoDeUsoMongo.getFiltro());
-                            this.usuario.recebeUmPedido(new RetornarDados(dadosObtidos));
+                            List<Document> dadosObtidos = mongo.obterDados(new Document(pedidoDeUsoMongo.getFiltro()));
+                            List<Map<String, Object>> dadosConvertidos = new ArrayList<>();
+                            for (Document doc : dadosObtidos) {
+                                Map<String, Object> mapa = new HashMap<>();
+                                for (String chave : doc.keySet()) {
+                                    mapa.put(chave, doc.get(chave));
+                                }
+                                dadosConvertidos.add(mapa);
+                            }
+
+                            this.usuario.recebeUmPedido(new RetornarDados(dadosConvertidos));
                             break;
                     }
                 } else if (pedido instanceof PedidoMensagem) {

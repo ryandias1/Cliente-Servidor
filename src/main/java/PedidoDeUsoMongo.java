@@ -1,18 +1,21 @@
-import org.bson.Document;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import java.util.Map;
 
-public class PedidoDeUsoMongo extends Pedido{
+public class PedidoDeUsoMongo extends Pedido {
     private String db;
     private String collection;
     private String tipoPedido;
-    private Document filtro;
-    private Document novosDados;
-    private Document doc;
+    private Map<String, Object> filtro;
+    private Map<String, Object> novosDados;
+    private Map<String, Object> doc;
 
-    public PedidoDeUsoMongo(String database, String collection, String tipoPedido, Document filtro, Document novosDados, Document documento) {
+    public PedidoDeUsoMongo(
+            String database,
+            String collection,
+            String tipoPedido,
+            Map<String, Object> filtro,
+            Map<String, Object> novosDados,
+            Map<String, Object> documento
+    ) {
         this.db = database;
         this.collection = collection;
         this.tipoPedido = tipoPedido.toLowerCase();
@@ -20,26 +23,28 @@ public class PedidoDeUsoMongo extends Pedido{
         this.novosDados = novosDados;
         this.doc = documento;
     }
-    public MongoCollection<Document> getDbCollecion() throws Exception {
-        try {
-            MongoClient mongoClient = MongoClients.create(UriMongo.getUri());
-            MongoDatabase database = mongoClient.getDatabase(this.db);
-            return database.getCollection(this.collection);
-        } catch (Exception erro) {
-            throw new Exception("Não foi possivel conectar ao Banco de Dados.");
-        }
+
+    public String getDb() {
+        return this.db;
+    }
+
+    public String getCollection() {
+        return this.collection;
     }
 
     public String getTipoPedido() {
         return this.tipoPedido;
     }
-    public Document getFiltro() {
+
+    public Map<String, Object> getFiltro() {
         return this.filtro;
     }
-    public Document getNovosDados() {
+
+    public Map<String, Object> getNovosDados() {
         return this.novosDados;
     }
-    public Document getDocumento() {
+
+    public Map<String, Object> getDocumento() {
         return this.doc;
     }
 }

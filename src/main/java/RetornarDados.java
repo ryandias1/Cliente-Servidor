@@ -1,14 +1,14 @@
-import org.bson.Document;
 import java.util.List;
+import java.util.Map;
 
-public class RetornarDados extends Pedido{
-    private List<Document> Dados;
+public class RetornarDados extends Pedido {
+    private List<Map<String, Object>> dados;
 
-    public RetornarDados(List<Document> lista) {
-        this.Dados = lista;
+    public RetornarDados(List<Map<String, Object>> dados) {
+        this.dados = dados;
     }
 
-    public List<Document> getDados() {
-        return Dados;
+    public List<Map<String, Object>> getDados() {
+        return dados;
     }
 }
