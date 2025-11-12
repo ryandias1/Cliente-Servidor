@@ -45,6 +45,19 @@ public class UsarMongo {
         }
     }
 
+    public List<Document> ObterTodosDados() throws Exception {
+        try {
+            FindIterable<Document> list = this.collection.find();
+            List<Document> lista = new ArrayList<Document>();
+            for (Document doc : list) {
+                lista.add(doc);
+            }
+            return lista;
+        } catch (Exception erro) {
+            throw new Exception("Não foi possivel obter os dados do banco");
+        }
+    }
+
     public void alterarNoBanco (Document filtro, Document novosDados) throws Exception{
         try{
             this.collection.updateOne(filtro, new Document("$set", novosDados));
