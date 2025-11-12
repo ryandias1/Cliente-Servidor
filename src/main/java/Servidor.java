@@ -22,7 +22,7 @@ public class Servidor {
         }
 
         for (;;) {
-            System.out.println("O servidor está rodando na porta: " + porta);
+            System.out.println("O servidor esta rodando na porta: " + porta);
             System.out.println("Use o comando \"des\" para desativar\n");
             System.out.print("> ");
 

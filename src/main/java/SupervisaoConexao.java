@@ -124,16 +124,18 @@ public class SupervisaoConexao extends Thread {
                 } else if (pedido instanceof PedidoMensagem) {
                     PedidoMensagem pedidoMensagem = (PedidoMensagem) pedido;
                     Parceiro destinatario = this.usuariosIdentificados.get(pedidoMensagem.getUidDestinatario());
+                    Document msg = new Document()
+                            .append("uidRemetente", pedidoMensagem.getUidRemetente())
+                            .append("uidDestinatario", pedidoMensagem.getUidDestinatario())
+                            .append("Conteudo", pedidoMensagem.getConteudoCriptografado())
+                            .append("chave", pedidoMensagem.getChaveBase64());
                     if (destinatario==null) {
-                        Document msgPendente = new Document()
-                                .append("uidRemetente", pedidoMensagem.getUidRemetente())
-                                .append("uidDestinatario", pedidoMensagem.getUidDestinatario())
-                                .append("Conteudo", pedidoMensagem.getConteudoCriptografado())
-                                .append("chave", pedidoMensagem.getChaveBase64());
                         UsarMongo mongo = new UsarMongo("IntelimedDB", "MensagensPendentes");
-                        mongo.inserirNoBanco(msgPendente);
+                        mongo.inserirNoBanco(msg);
                     } else {
+                        UsarMongo mongo = new UsarMongo("IntelimedDB", "GeralMensagens");
                         destinatario.recebeUmPedido(pedidoMensagem);
+                        mongo.inserirNoBanco(msg);
                     }
                 } else if (pedido instanceof PedidoDeSaida) {
                     synchronized (this.usuarios) {
