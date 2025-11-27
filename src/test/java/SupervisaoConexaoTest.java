@@ -1,3 +1,5 @@
+import br.com.ibm.intelimed.network.Parceiro;
+import br.com.ibm.intelimed.network.SupervisaoConexao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.net.Socket;

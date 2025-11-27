@@ -1,3 +1,4 @@
+import br.com.ibm.intelimed.network.UsarMongo;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -84,6 +85,6 @@ public class UsarMongoTest {
     @Test
     @Order(4)
     void deveLancarExcecaoAoInserirNulo() {
-        assertThrows(Exception.class, () -> usarMongo.inserirNoBanco(null));
+        assertThrows(Exception.class, () -> usarMongo.inserirNoBanco((Document) null));
     }
 }

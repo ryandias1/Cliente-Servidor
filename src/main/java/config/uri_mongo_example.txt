@@ -1,1 +1,0 @@
-mongodb+srv://usuario:senha@clusterintelimed.wi4xnuk.mongodb.net/?retryWrites=true&w=majority&appName=clusterIntelimed

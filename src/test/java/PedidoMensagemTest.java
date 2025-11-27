@@ -1,3 +1,4 @@
+import br.com.ibm.intelimed.network.PedidoMensagem;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -43,8 +44,4 @@ public class PedidoMensagemTest {
 
         assertEquals("[Erro ao descriptografar mensagem]",mensagemCriptografada.getConteudo());
     }
-
-    // - TESTES POR ATRIBUTOS
-
-
 }
