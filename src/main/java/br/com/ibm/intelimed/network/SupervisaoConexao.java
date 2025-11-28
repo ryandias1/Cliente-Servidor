@@ -65,9 +65,37 @@ public class SupervisaoConexao extends Thread {
                 this.usuarios.add (this.usuario);
             }
             synchronized (this.usuariosIdentificados) {
-                this.usuariosIdentificados.put(identificacao.getUid(), this.usuario);
+                this.usuariosIdentificados.put(identificacao.getUidUsuario(), this.usuario);
             }
-            this.usuario.setUid(identificacao.getUid());
+            this.usuario.setUid(identificacao.getUidUsuario());
+
+            try {
+                UsarMongo mongoGeral = new UsarMongo("IntelimedDB", "GeralMensagens");
+
+                String chatId = gerarChatId(this.usuario.getUid(), identificacao.getUidContato());
+
+                Document filtroGeral = new Document("chatId", chatId);
+
+                List<Document> historico = mongoGeral.obterDados(filtroGeral);
+
+                // Ordena pelas mais antigas
+                historico.sort((a, b) -> Long.compare(a.getLong("timestamp"), b.getLong("timestamp")));
+
+                for (Document msg : historico) {
+                    String idRemetente = msg.getString("uidRemetente");
+                    String conteudo = msg.getString("Conteudo");
+                    String idDestinatario = msg.getString("uidDestinatario");
+                    String chaveBase64 = msg.getString("chave");
+                    Long timestamp = msg.getLong("timestamp");
+
+                    PedidoMensagem pedidoMensagem = new PedidoMensagem(idRemetente, conteudo, idDestinatario, chaveBase64, timestamp);
+                    this.usuario.recebeUmPedido(pedidoMensagem);
+                }
+
+            } catch (Exception erro) {
+                System.out.println("Erro ao carregar mensagens gerais: " + erro.getMessage());
+            }
+
             try {
                 UsarMongo mongoMsg = new UsarMongo("IntelimedDB", "MensagensPendentes");
 
@@ -75,19 +103,23 @@ public class SupervisaoConexao extends Thread {
                 Document filtro = new Document("uidDestinatario", this.usuario.getUid());
                 List<Document> pendentes = mongoMsg.obterDados(filtro);
 
+                pendentes.sort((a, b) -> Long.compare(a.getLong("timestamp"), b.getLong("timestamp")));
+
                 // Enviar todas as mensagens
                 for (Document msg : pendentes) {
                     String idRemetente = msg.getString("uidRemetente");
                     String conteudo = msg.getString("Conteudo");
                     String chaveBase64 = msg.getString("chave");
+                    Long timestamp = msg.getLong("timestamp");
 
-                    PedidoMensagem pedidoMensagem = new PedidoMensagem(idRemetente, conteudo, this.usuario.getUid(), chaveBase64);
+                    PedidoMensagem pedidoMensagem = new PedidoMensagem(idRemetente, conteudo, this.usuario.getUid(), chaveBase64, timestamp);
                     this.usuario.recebeUmPedido(pedidoMensagem);
                 }
 
                 if (!pendentes.isEmpty()) {
                     mongoMsg.excluirNoBanco(filtro);
-                    mongoMsg.inserirNoBanco(pendentes);
+                    UsarMongo mongoGeral = new UsarMongo("IntelimedDB", "GeralMensagens");
+                    mongoGeral.inserirNoBanco(pendentes);
                 }
 
 
@@ -131,11 +163,14 @@ public class SupervisaoConexao extends Thread {
                 } else if (pedido instanceof PedidoMensagem) {
                     PedidoMensagem pedidoMensagem = (PedidoMensagem) pedido;
                     Parceiro destinatario = this.usuariosIdentificados.get(pedidoMensagem.getUidDestinatario());
+                    long timestamp = System.currentTimeMillis();
                     Document msg = new Document()
                             .append("uidRemetente", pedidoMensagem.getUidRemetente())
                             .append("uidDestinatario", pedidoMensagem.getUidDestinatario())
                             .append("Conteudo", pedidoMensagem.getConteudoCriptografado())
-                            .append("chave", pedidoMensagem.getChaveBase64());
+                            .append("chave", pedidoMensagem.getChaveBase64())
+                            .append("chatId", gerarChatId(pedidoMensagem.getUidRemetente(), pedidoMensagem.getUidDestinatario()))
+                            .append("timestamp", timestamp);
                     if (destinatario==null) {
                         UsarMongo mongo = new UsarMongo("IntelimedDB", "MensagensPendentes");
                         mongo.inserirNoBanco(msg);
@@ -157,5 +192,9 @@ public class SupervisaoConexao extends Thread {
                 receptor   .close ();
             } catch (Exception falha) {} // so tentando fechar antes de acabar a thread
         }
+    }
+
+    public String gerarChatId(String a, String b) {
+        return (a.compareTo(b) < 0) ? a + "_" + b : b + "_" + a;
     }
 }
