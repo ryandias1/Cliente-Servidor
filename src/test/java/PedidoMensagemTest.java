@@ -31,16 +31,18 @@ public class PedidoMensagemTest {
 
     @Test
     void deveManterMesmoConteudoAoRecriarComChave() throws Exception {
+        long timestamp = System.currentTimeMillis();
         PedidoMensagem mensagemCriptografada = new PedidoMensagem(mensagem.getUidRemetente(),mensagem.getConteudoCriptografado(),
-                mensagem.getUidDestinatario(), mensagem.getChaveBase64());
+                mensagem.getUidDestinatario(), mensagem.getChaveBase64(), timestamp);
 
         assertEquals("Ola, Como esta?",mensagemCriptografada.getConteudo());
     }
 
     @Test
     void deveRetornarMensagemDeErroQuandoChaveInvalida() throws Exception {
+        long timestamp = System.currentTimeMillis();
         PedidoMensagem mensagemCriptografada = new PedidoMensagem(mensagem.getUidRemetente(),mensagem.getConteudoCriptografado(),
-                mensagem.getUidDestinatario(), "98298hw9nh9wn");
+                mensagem.getUidDestinatario(), "98298hw9nh9wn", timestamp);
 
         assertEquals("[Erro ao descriptografar mensagem]",mensagemCriptografada.getConteudo());
     }

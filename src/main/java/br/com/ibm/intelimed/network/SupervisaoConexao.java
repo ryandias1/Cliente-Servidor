@@ -54,7 +54,6 @@ public class SupervisaoConexao extends Thread {
         PedidoIdentificacao identificacao;
         try {
             identificacao = (PedidoIdentificacao) this.usuario.enviarUmPedido();
-            System.out.println("CONECTADO");
 
         } catch (Exception erro) {
             return;
@@ -64,11 +63,10 @@ public class SupervisaoConexao extends Thread {
             synchronized (this.usuarios) {
                 this.usuarios.add (this.usuario);
             }
-            synchronized (this.usuariosIdentificados) {
-                this.usuariosIdentificados.put(identificacao.getUidUsuario(), this.usuario);
-            }
             this.usuario.setUid(identificacao.getUidUsuario());
-
+            synchronized (this.usuariosIdentificados) {
+                this.usuariosIdentificados.put(this.usuario.getUid(), this.usuario);
+            }
             try {
                 UsarMongo mongoGeral = new UsarMongo("IntelimedDB", "GeralMensagens");
 
@@ -183,6 +181,9 @@ public class SupervisaoConexao extends Thread {
                     synchronized (this.usuarios) {
                         this.usuarios.remove (this.usuario);
                     }
+                    synchronized (this.usuariosIdentificados) {
+                        this.usuariosIdentificados.remove (this.usuario.getUid());
+                    }
                     this.usuario.fecharConexao();
                 }
             }
@@ -196,5 +197,17 @@ public class SupervisaoConexao extends Thread {
 
     public String gerarChatId(String a, String b) {
         return (a.compareTo(b) < 0) ? a + "_" + b : b + "_" + a;
+    }
+
+    public Parceiro getUsuario() {
+        return usuario;
+    }
+
+    public ArrayList<Parceiro> getUsuarios() {
+        return usuarios;
+    }
+
+    public Map<String, Parceiro> getUsuariosIdentificados() {
+        return usuariosIdentificados;
     }
 }
